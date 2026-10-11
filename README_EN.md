@@ -1,5 +1,7 @@
 # Goodix GDIX51C0 Linux fingerprint driver · Huawei MateBook D15 2022
 
+[Detailed investigation and fix (Chinese)](https://xingwangzhe.fun/posts/matebook-d15-goodix-gdix51c0-fingerprint/)
+
 [中文](README.md)
 
 ## Hardware manufacturer and tested hosts

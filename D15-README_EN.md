@@ -1,5 +1,7 @@
 # Huawei MateBook D15 2022 / BoF-XX image capture fix
 
+[Detailed investigation and fix (Chinese)](https://xingwangzhe.fun/posts/matebook-d15-goodix-gdix51c0-fingerprint/)
+
 [中文](D15-README.md) · [Project home](README_EN.md)
 
 This branch starts from [berkekbgz/libfprint-goodix-spi](https://github.com/berkekbgz/libfprint-goodix-spi) commit `010a665f54089a1632b1ab7be588b316ace934e2`. **Goodix** makes the fingerprint sensor and Huawei makes the laptop. The fingerprint device is `ACPI\GDIX51C0` on SPI. Three files under `drivers/gdix51c0/` were changed; inspect them with `git log -p -- drivers/gdix51c0/`.

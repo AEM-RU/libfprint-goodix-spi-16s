@@ -1,5 +1,7 @@
 # Goodix GDIX51C0 Linux 指纹驱动 · Huawei MateBook D15 2022
 
+[完整排查与修复文章](https://xingwangzhe.fun/posts/matebook-d15-goodix-gdix51c0-fingerprint/)
+
 [English](README_EN.md)
 
 ## 硬件厂家与适用机型

@@ -1,5 +1,7 @@
 # Huawei MateBook D15 2022 / BoF-XX 采图修复
 
+[完整排查与修复文章](https://xingwangzhe.fun/posts/matebook-d15-goodix-gdix51c0-fingerprint/)
+
 [English](D15-README_EN.md) · [项目首页](README.md)
 
 本分支基于 [berkekbgz/libfprint-goodix-spi](https://github.com/berkekbgz/libfprint-goodix-spi) 的 `010a665f54089a1632b1ab7be588b316ace934e2`。硬件厂家是 **Goodix（汇顶科技）**，笔记本整机厂家是华为；指纹设备是 SPI 总线上的 `ACPI\GDIX51C0`。三个修改文件位于 `drivers/gdix51c0/`，可用 `git log -p -- drivers/gdix51c0/` 查看补丁。
