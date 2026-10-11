@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 /* Copyright (C) 2026 Berke Kabagöz <berkekbgz@gmail.com> */
+/* Modified 2026-10-11 by xingwangzhe <xingwangzhe@outlook.com>:
+ * wake the listener after capture suppression and enter quiet mode on ACK. */
 
 /*
  * Goodix GDIX51C0 — async SPI listener thread.  See gdix51c0-listener.h.
@@ -54,6 +56,8 @@ struct Gdix51c0Listener
                              * bus (like Windows) while the sensor reads out the
                              * array — any SPI traffic in that window chops the
                              * readout at a fixed row. */
+  gint     suppress_on_ack; /* atomic: enter quiet period in the reader thread
+                             * before the capture ACK wakes its caller. */
 
   /* spi_lock serializes any access to the SPI fd: listener reads in its
    * loop, callers write in gdix51c0_listener_write.  We *also* hold this
@@ -237,6 +241,9 @@ listener_drain_irq_high (Gdix51c0Listener *self)
 #endif
 
       g_mutex_lock (&self->dispatch_lock);
+      if (kind == GDIX51C0_PKT_READ &&
+          g_atomic_int_compare_and_exchange (&self->suppress_on_ack, 1, 0))
+        g_atomic_int_set (&self->suppress, 1);
       listener_enqueue_locked (self, kind, payload, n);
       g_cond_broadcast (&self->cond);
       g_mutex_unlock (&self->dispatch_lock);
@@ -285,7 +292,8 @@ listener_thread_main (gpointer user_data)
 
           (void) read (self->wake_fd, &wake_count, sizeof (wake_count));
           poll_fds[1].revents = 0;
-          continue;
+          /* A capture may have raised IRQ while reads were suppressed.
+           * Recheck the level now: its edge was already consumed. */
         }
 
       if (poll_fds[0].revents & POLLIN)
@@ -432,6 +440,19 @@ gdix51c0_listener_set_suppress (Gdix51c0Listener *self, gboolean on)
   if (!self)
     return;
   g_atomic_int_set (&self->suppress, on ? 1 : 0);
+  if (!on)
+    {
+      uint64_t wake_count = 1;
+      (void) write (self->wake_fd, &wake_count, sizeof (wake_count));
+    }
+}
+
+void
+gdix51c0_listener_arm_suppress_on_ack (Gdix51c0Listener *self, gboolean on)
+{
+  if (!self)
+    return;
+  g_atomic_int_set (&self->suppress_on_ack, on ? 1 : 0);
 }
 
 static gboolean

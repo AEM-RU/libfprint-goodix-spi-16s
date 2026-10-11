@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 /* Copyright (C) 2026 Berke Kabagöz <berkekbgz@gmail.com> */
+/* Modified 2026-10-11 by xingwangzhe <xingwangzhe@outlook.com>:
+ * declare capture ACK suppression control. */
 
 /*
  * Goodix GDIX51C0 — async SPI listener thread.
@@ -62,6 +64,7 @@ void gdix51c0_listener_drain_cmd (Gdix51c0Listener *self, guint8 cmd);
 /* When enabled, the listener performs NO SPI reads at all — used to keep the
  * bus silent during an image capture readout. */
 void gdix51c0_listener_set_suppress (Gdix51c0Listener *self, gboolean on);
+void gdix51c0_listener_arm_suppress_on_ack (Gdix51c0Listener *self, gboolean on);
 
 /* Send a packet on the SPI bus (outer header type=0xa0, plus payload).
  * Serializes against listener reads via the bus mutex. */

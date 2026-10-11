@@ -3,6 +3,8 @@
  * Goodix GDIX51C0 SPI driver for libfprint
  *
  * Copyright (C) 2026 Berke Kabagöz <berkekbgz@gmail.com>
+ * Modified 2026-10-11 by xingwangzhe <xingwangzhe@outlook.com>:
+ * arm the listener's quiet period before sending the image-mode command.
  */
 
 #define FP_COMPONENT "gdix51c0"
@@ -3368,11 +3370,14 @@ gdix51c0_capture_image_raw (FpiDeviceGdix51c0 *self,
        * record) — the Goodix request cmd byte (0x22 / 0x20) is what we
        * SEND, not what we receive in the response payload. */
       gdix51c0_listener_drain_cmd (self->listener, 0x17);
+      gdix51c0_listener_arm_suppress_on_ack (self->listener, TRUE);
 
       if (!gdix51c0_listener_send_ack (self->listener,
                                        img_setmode, sizeof (img_setmode),
                                        "img-setmode", &local_error))
         {
+          gdix51c0_listener_arm_suppress_on_ack (self->listener, FALSE);
+          gdix51c0_listener_set_suppress (self->listener, FALSE);
           g_propagate_error (error, g_steal_pointer (&local_error));
           return NULL;
         }
@@ -3387,7 +3392,6 @@ gdix51c0_capture_image_raw (FpiDeviceGdix51c0 *self,
       {
         guint settle_ms = (guint) GDIX51C0_DEV_ENV_INT (
           "GDIX51C0_CAPTURE_SETTLE_MS", 80);
-        gdix51c0_listener_set_suppress (self->listener, TRUE);
         g_usleep ((gulong) settle_ms * 1000);
         gdix51c0_listener_set_suppress (self->listener, FALSE);
       }

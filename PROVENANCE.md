@@ -100,6 +100,19 @@ boundary.
   under that target project's terms, not under the repository-wide LGPL
   default.
 
+## Huawei MateBook D15 2022 / BoF-XX local changes
+
+- This local branch starts from upstream commit
+  `010a665f54089a1632b1ab7be588b316ace934e2`.
+- On 2026-10-11, xingwangzhe <xingwangzhe@outlook.com> modified the three
+  `drivers/gdix51c0/gdix51c0*` files named in `D15-README.md` to wake the
+  listener when capture SPI suppression ends and to start suppression in the
+  ACK-reading thread. The changes remain under `LGPL-2.1-or-later`; original
+  copyright and SPDX notices are retained.
+- The Huawei-supplied Windows driver archive was inspected locally for device
+  identity and behavior. No vendor DLL, executable, INF, firmware, biometric
+  capture, TLS key, or fingerprint template is included in this Git repository.
+
 ## Attribution policy
 
 - Project-original C and header files use a concise SPDX license identifier

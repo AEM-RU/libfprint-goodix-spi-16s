@@ -9,3 +9,16 @@
 /*.txt
 /enrollverify_last.log
 /workdir
+
+# Keep vendor Windows files and local biometric state out of this source fork.
+*.dll
+*.exe
+*.sys
+*.cat
+*.inf
+*.psk
+*.dat
+*.bin
+*.gzf
+*.so
+*.so.*
