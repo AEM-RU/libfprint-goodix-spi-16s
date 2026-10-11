@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-2.1-or-later
+// SPDX-License-Identifier: GPL-3.0-only
 /* Copyright (C) 2026 Berke Kabagöz <berkekbgz@gmail.com> */
 /* Differential oracle for the three-count Q8 aggregate assembled by
  * AlgoChicago+0x2a3e9..+0x2a43b before the +0x251d0 study filter. */

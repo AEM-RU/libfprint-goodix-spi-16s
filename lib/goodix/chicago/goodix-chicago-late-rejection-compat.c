@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-2.1-or-later
+// SPDX-License-Identifier: GPL-3.0-only
 /* Copyright (C) 2026 Berke Kabagöz <berkekbgz@gmail.com> */
 
 /* Literal compatibility translation of AlgoChicago+0x2ce50 for template types

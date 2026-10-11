@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-2.1-or-later
+// SPDX-License-Identifier: GPL-3.0-only
 /* Copyright (C) 2026 Berke Kabagöz <berkekbgz@gmail.com> */
 /* Probe how the real calidata should be loaded: try param 10 vs 12, query
  * get_calidata_len, and attempt preprocess_load_calidata on the real blobs. */

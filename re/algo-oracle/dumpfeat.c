@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-2.1-or-later
+// SPDX-License-Identifier: GPL-3.0-only
 /* Copyright (C) 2026 Berke Kabagöz <berkekbgz@gmail.com> */
 /* Enroll ONE frame, dump its extracted feature array (f0 x 0x38 bytes) to
  * <out>.  These are Goodix's binary local descriptors — feed to a native matcher.

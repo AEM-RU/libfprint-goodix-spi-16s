@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-2.1-or-later
+// SPDX-License-Identifier: GPL-3.0-only
 /*
  * Checksum shared by Goodix MCU configuration blobs.
  *
@@ -6,9 +6,9 @@
  * Copyright (C) 2026 Berke Kabagöz <berkekbgz@gmail.com>
  *
  * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
+ * modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * version 3 of the License.
  */
 
 #pragma once

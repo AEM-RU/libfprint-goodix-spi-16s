@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-2.1-or-later
+// SPDX-License-Identifier: GPL-3.0-only
 /* Copyright (C) 2026 Berke Kabagöz <berkekbgz@gmail.com> */
 /* Behavioral oracle for the transform-area producers used by the type-24
  * late rejection predicate: AlgoChicago+0x43300 and +0x52030. */

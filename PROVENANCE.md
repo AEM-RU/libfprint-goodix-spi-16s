@@ -5,9 +5,13 @@ software, and interoperability information learned from hardware and Windows
 driver behavior. This file records those boundaries so that attribution does
 not depend on Git history and survives rebases or squashed releases.
 
-Unless a file or section says otherwise, original source in this repository is
-Copyright (C) 2026 Berke Kabagöz <berkekbgz@gmail.com> and is distributed under
-LGPL-2.1-or-later. Existing third-party notices remain authoritative.
+The upstream source was Copyright (C) 2026 Berke Kabagöz
+<berkekbgz@gmail.com> and distributed under LGPL-2.1-or-later. This D15 copy
+exercises LGPL-2.1 section 3 to distribute its code under GPL-3.0-only.
+The conversion changes license notices, not authorship: all original copyright
+holders and the LGPL provenance of the upstream revisions remain recorded.
+The conversion is irreversible for this copy. The full GPLv3 text is in
+`LICENSE`.
 
 ## Adapted free-software source
 
@@ -94,11 +98,11 @@ boundary.
 
 ## Target-project patches
 
-- `patches/libfprint/` targets LGPL-2.1-or-later libfprint and is distributed
-  under that target project's terms.
-- `patches/fprintd/` modifies GPL-2.0-or-later fprintd source and is distributed
-  under that target project's terms, not under the repository-wide LGPL
-  default.
+- `patches/libfprint/` targets LGPL-2.1-or-later libfprint. This copy of the
+  patch is distributed under GPL-3.0-only using the LGPL section 3 option.
+- `patches/fprintd/` modifies GPL-2.0-or-later fprintd source. This copy is
+  distributed under GPL-3.0-only through the target's "or later" permission.
+  Original upstream license provenance remains GPL-2.0-or-later.
 
 ## Huawei MateBook D15 2022 / BoF-XX local changes
 
@@ -107,19 +111,20 @@ boundary.
 - On 2026-10-11, xingwangzhe <xingwangzhe@outlook.com> modified the three
   `drivers/gdix51c0/gdix51c0*` files named in `D15-README.md` to wake the
   listener when capture SPI suppression ends and to start suppression in the
-  ACK-reading thread. The changes remain under `LGPL-2.1-or-later`; original
-  copyright and SPDX notices are retained.
+  ACK-reading thread. The changes are distributed under `GPL-3.0-only` with
+  the rest of this copy; original copyright notices are retained.
 - The Huawei-supplied Windows driver archive was inspected locally for device
   identity and behavior. No vendor DLL, executable, INF, firmware, biometric
   capture, TLS key, or fingerprint template is included in this Git repository.
 
 ## Attribution policy
 
-- Project-original C and header files use a concise SPDX license identifier
-  followed by their copyright notice. Adapted files may also retain the
-  original project's longer license boilerplate.
-- Files copied or adapted from free software retain the original copyright and
-  license notices, followed by Berke Kabagöz's notice for the new work.
+- C and header files use a GPL-3.0-only SPDX identifier followed by their
+  copyright notices. Adapted files may retain longer license boilerplate,
+  converted only as permitted by LGPL-2.1 section 3.
+- Files copied or adapted from free software retain original copyright notices.
+  License notices in this converted copy identify GPL-3.0-only; this document
+  preserves the exact original license provenance and revision.
 - Files written from protocol facts, observed behavior, or test results carry
   the new implementation's notice; the behavioral source is recorded here.
 - A repository reference is not treated as permission to copy material that is

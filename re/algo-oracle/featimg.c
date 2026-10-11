@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-2.1-or-later
+// SPDX-License-Identifier: GPL-3.0-only
 /* Copyright (C) 2026 Berke Kabagöz <berkekbgz@gmail.com> */
 /* Extract AlgoMilan features from an ARBITRARY 8-bit enhanced image (bypasses the
  * preprocessor), so we can probe the enhanced-image -> descriptor step directly.

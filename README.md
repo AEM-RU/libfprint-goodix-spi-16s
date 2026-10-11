@@ -1,204 +1,67 @@
-<h1 align="center">
-<img src="docs/assets/gdix51c0-sensor-capture-rounded-color.png" alt="False-color visualization of a real Goodix GDIX51C0 sensor capture" width="120">
-<br>
-<b>libfprint Goodix SPI Driver</b>
-</h1>
+# Goodix GDIX51C0 Linux 指纹驱动 · Huawei MateBook D15 2022
 
-<p align="center">
-An out-of-tree libfprint project for Goodix host-processing fingerprint sensors that has official matcher!
-</p>
+## 中文
 
-<p align="center">
-<a href="https://github.com/berkekbgz/libfprint-goodix-spi/actions/workflows/ci.yml"><img src="https://github.com/berkekbgz/libfprint-goodix-spi/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-<a href="LICENSE"><img src="https://img.shields.io/badge/license-LGPL--2.1--or--later-blue.svg" alt="License: LGPL-2.1-or-later"></a>
-<img src="https://img.shields.io/badge/status-pre--release-orange.svg" alt="Status: pre-release">
-</p>
+### 硬件厂家与适用机型
 
-<br>
+**指纹传感器厂家是深圳市汇顶科技股份有限公司（Goodix）；华为是笔记本整机厂家。** 本仓库适配的指纹硬件是 Goodix `GDIX51C0`，通过 ACPI 枚举、SPI 通信，并使用 GPIO 中断与复位线。实测设备的芯片 ID 为 `0x2504`，配置为 ChicagoHS、80 × 64 像素。华为提供的 Windows 驱动包 `gfspi.inf` 同样匹配 `ACPI\GDIX51C0`，但其 DLL、固件和安装程序**没有**收入本仓库。
 
-> Project is built with AI assistance, but everything validated byte for byte with official driver.\
-> Took me too much time and too many tokens.
-> Any support would be much appreciated.\
-> Thank you!
+| 主机 | 验证范围 |
+| --- | --- |
+| Huawei MateBook D15 2022，BoF-XX / M1010 | 本分支完成右手食指录入，`fprintd-verify` 返回 `verify-match`；尚未验证重启后的 GDM 登录 |
+| Huawei MateBook 16s | [上游项目](https://github.com/berkekbgz/libfprint-goodix-spi)声明完成硬件验证；本分支未在该机型复测 |
 
-<br>
+### 修复内容
 
-## Supported devices
+上游驱动在图像采集时让 SPI 总线静默约 80 ms。BoF-XX 的传感器在静默期把中断脚拉高；监听线程消耗中断边沿后，直到下一个边沿才读取数据，因此图像响应 `0x17` 超时。本分支在解除静默时唤醒监听线程并重新检查中断电平，同时在收到采图 ACK 的线程内立即进入静默期。详细日志、修改范围和回退方法见 [D15-README.md](D15-README.md)。
 
-- Goodix GDIX51C0 <sup>* tested on Huawei Matebook 16s</sup>
+### 安装和使用
 
-> [!NOTE]\
-> For details, see the [support matrix](docs/SUPPORTED_DEVICES.md)
-> and [current parity record](re/PARITY.md)
-
-## Known limitations
-
-- This is a pre-release. The driver has only been hardware-tested on the
-  machine listed above, and packaging or integration details may still change.
-  The driver id, storage paths, and enrolled-print format are treated as stable.
-- GDIX51C0 is currently the only supported sensor and has been hardware-tested
-  on a Huawei MateBook 16s.
-- The default GPIO lines match the tested machine. Other laptops using the same
-  sensor may require the `GDIX51C0_GPIOCHIP`, `GDIX51C0_IRQ_LINE`, and
-  `GDIX51C0_RESET_LINE` overrides.
-- The sensor must be exposed through Linux spidev; this project does not install
-  a custom kernel driver.
-- Integration is tested against the pinned libfprint and fprintd versions. Newer
-  releases may require the integration patches to be updated.
-
-## Security model
-
-> [!IMPORTANT]\
-> This sensor streams images to the host, and all matching runs on the host CPU.
-> It is not a match-on-chip or secure-element design, and it cannot be made into
-> one: the hardware has no command to store a template or match a finger.
-
-- **A compromised host defeats it.** An attacker with root or kernel access can
-  bypass authentication and read biometric data. Fingerprint unlock here defends
-  against physical and opportunistic access to your machine, not against malware
-  that is already running as you.
-- **No liveness detection.** The sensor's raw anti-spoofing signals are never
-  exposed to the host, so this driver cannot perform presentation-attack
-  detection. A good fake finger may pass.
-- **Templates and keys sit on disk.** Enrolled prints and the TLS PSK live under
-  `/var/lib/fprint` protected only by filesystem permissions (`0600`).
-- **What the native matcher does buy you** is a much lower false-accept rate than
-  a generic image matcher achieves on a sensor this small — that is, the wrong
-  finger is far less likely to unlock your machine.
-
-Use fingerprint unlock as a convenience factor, not as your only line of
-defense.
-
-## Install
+本项目是 [libfprint-goodix-spi](https://github.com/berkekbgz/libfprint-goodix-spi) 的派生版本，安装脚本会获取指定版本的 libfprint，构建影子库并配置 `fprintd`。默认构建还会安装带学习持久化功能的 fprintd；若要保留发行版 fprintd，可使用 `--without-fprintd`。
 
 ```bash
-./install.sh
-```
-
-The installer:
-
-1. Fetches pinned libfprint and fprintd sources into
-   `${XDG_CACHE_HOME:-$HOME/.cache}/goodix-spi-driver/sources`,
-2. Applies the libfprint and fprintd integration patches,
-3. Builds a shadow libfprint under
-   `/opt/goodix-spi-driver/libfprint`,
-4. Builds the patched fprintd under `/opt/goodix-spi-driver/fprintd`,
-5. Configures fprintd to use both shadow builds and prewarm GDIX51C0,
-6. Restarts the daemon.
-
-> [!WARNING]\
-> The default installation patches fprintd so successful adaptive
-> `templateStudy` updates are saved to disk and the sensor can initialize in
-> the background. The current Chicago template can retain up to 50 captures.
-> Use `./install.sh --without-fprintd` to keep the distribution fprintd; this
-> disables both persistence of learning updates and background warm sessions.
-
-<br>
-
-The supported defaults are libfprint `v1.94.10` and fprintd `v1.94.5`. A
-different libfprint checkout can be supplied directly:
-
-```bash
-./install.sh /path/to/libfprint
-```
-
-or fetched into a separate cache entry:
-
-```bash
-LIBFPRINT_REF=<tag-or-commit> ./scripts/fetch-libfprint.sh
-```
-
-Build dependencies include GLib/GIO, GUsb, GUdev, `libgpiod >= 2.0`, and
-`OpenSSL >= 3.0`. The default patched fprintd build also requires Polkit's
-GObject development files (`polkit-gobject-1 >= 0.91`). Verbose libfprint
-diagnostics are disabled by default. Use
-`GOODIX_SPI_DEBUG=1 ./install.sh` only for a debugging session.
-
-### Developer builds
-
-Normal builds do not contain capture dump writers, protocol tuning knobs, or
-fault-injection hooks. To compile those tools for driver development:
-
-```bash
-GOODIX_SPI_DEVELOPER=1 GOODIX_SPI_DEBUG=1 ./install.sh
-```
-
-Developer diagnostics can write biometric captures and should not be left
-enabled on an everyday installation. Runtime dump variables have no effect on
-the default release build. CI checks both build profiles and rejects a release
-library that still contains a developer hook.
-
-## First run
-
-The sensor also requires a 32-byte TLS PSK. If no key is supplied, the default
-installation authorizes one random first-run provision and stores it as
-`/var/lib/fprint/gdix51c0.psk` with mode `0600`. To use an existing key:
-
-```bash
-GOODIX_TLS_PSK_HEX=<64-hex> ./install.sh
-```
-
-> [!NOTE]\
-> On a dual-boot system, an existing Windows key can be imported. If Linux and
-> Windows use different keys, either OS may replace the key stored by the
-> sensor. After a confirmed TLS authentication mismatch, Linux restores its
-> persisted key once after a hard reset. The first fingerprint operation after
-> switching operating systems may therefore take a little longer.
-
-## Enroll and verify
-
-Enroll a finger after installation:
-
-```bash
+./install.sh --without-fprintd
 fprintd-enroll -f right-index-finger
-```
-
-Then test it:
-
-```bash
 fprintd-verify
 ```
 
-## Repository layout
+传感器首次使用需要 TLS PSK。默认安装流程可能生成并写入新密钥；双系统切换时 Windows 和 Linux 的密钥可能相互替换。请先阅读上游 [首次运行说明](https://github.com/berkekbgz/libfprint-goodix-spi#first-run)。指纹图像和模板在主机处理与保存；这是一项便利解锁功能，不应作为唯一的身份验证方式。
 
-```text
-lib/goodix/common/          transport-neutral codecs and checksums
-lib/goodix/chicago/         I/O-free native ChicagoHS biometric backend
-drivers/gdix51c0/           GDIX51C0 transport, session, capture, and libfprint glue
-patches/                    pinned libfprint and fprintd integration patches
-scripts/                    fetch, build, install, and hardware-test helpers
-config/                     supported-device metadata and install hooks
-integration/                source-owned Meson registration fragments
-tests/                      deterministic common and Chicago tests
-docs/                       architecture, support, and development roadmap
-re/                         source-only interoperability research and oracles
-```
+### 协议和来源
 
-The [architecture](docs/ARCHITECTURE.md) explains the abstraction boundaries;
-the [roadmap](docs/ROADMAP.md) covers additional sensors.
+**本派生版本使用 GNU GPL v3.0（`GPL-3.0-only`）。** 上游原本使用 `LGPL-2.1-or-later`；该协议第 3 条允许对给定副本改用普通 GPL，并指定版本 3。本仓库已同步调整源码许可证声明，保留原作者版权信息，在 [PROVENANCE.md](PROVENANCE.md) 记录来源和转换。仓库内针对 fprintd 的补丁原本来自 `GPL-2.0-or-later` 代码，在本副本按 GPLv3 分发。许可证全文见 [LICENSE](LICENSE)。
 
-## Uninstall
+本仓库不包含 Goodix 或华为的 Windows 驱动二进制、固件、指纹图像、模板或设备密钥。公开源码与本机安装状态是两回事；提交或下载本仓库不会上传本机 `/var/lib/fprint` 中的数据。
+
+## English
+
+### Hardware manufacturer and tested hosts
+
+**Shenzhen Goodix Technology Co., Ltd. (Goodix) makes the fingerprint sensor; Huawei makes the laptop.** This fork targets the Goodix `GDIX51C0`, enumerated through ACPI and connected over SPI with GPIO interrupt and reset lines. The tested sensor reports chip ID `0x2504`, ChicagoHS, and an 80 × 64 pixel array. Huawei's Windows `gfspi.inf` also matches `ACPI\GDIX51C0`; its DLLs, firmware, and installer are **not** included here.
+
+| Host | Evidence |
+| --- | --- |
+| Huawei MateBook D15 2022, BoF-XX / M1010 | Right index finger enrollment completed and `fprintd-verify` returned `verify-match`; GDM login after reboot has not been checked |
+| Huawei MateBook 16s | Hardware tested by the [upstream project](https://github.com/berkekbgz/libfprint-goodix-spi); not retested on this fork |
+
+### Fix in this fork
+
+The upstream driver keeps the SPI bus quiet for about 80 ms while the sensor captures an image. On BoF-XX, IRQ rises during that interval. The listener consumes the edge while reads are suppressed and then waits for another edge, so TLS image response `0x17` times out. This fork wakes the listener and rechecks the IRQ level when suppression ends. It also starts the quiet period in the thread that receives the capture ACK. See [D15-README.md](D15-README.md) for the local evidence, changed files, and rollback path.
+
+### Install and use
+
+This is a fork of [libfprint-goodix-spi](https://github.com/berkekbgz/libfprint-goodix-spi). The installer fetches pinned libfprint source, builds a shadow library, and configures `fprintd`. The default build also installs a patched fprintd for persistent matcher learning; `--without-fprintd` keeps the distribution daemon.
 
 ```bash
-./uninstall.sh
+./install.sh --without-fprintd
+fprintd-enroll -f right-index-finger
+fprintd-verify
 ```
 
-Use `./uninstall.sh --purge` only when the persisted PSK and sensor calibration
-should also be removed.
+First use requires a TLS PSK. The default installation may generate and provision a new key; Windows and Linux may replace each other's key on a dual-boot machine. Read the upstream [first-run notes](https://github.com/berkekbgz/libfprint-goodix-spi#first-run) first. Images and templates are processed and stored on the host. Fingerprint unlock is a convenience feature and should not be the only authentication factor.
 
-This project is maintained out of tree today. Parts of the driver may
-eventually be suitable for libfprint, but that is a possibility rather than a
-promised distribution path. The SPI integration and adaptive-template
-persistence would first need to be agreed with the libfprint and fprintd
-maintainers.
+### License and provenance
 
+**This fork is distributed under GNU GPL v3.0 (`GPL-3.0-only`).** The upstream project used `LGPL-2.1-or-later`. Section 3 of LGPL 2.1 permits converting a given copy to the ordinary GPL and selecting version 3. This copy updates source license notices, retains the original copyright holders, and records the conversion and source revisions in [PROVENANCE.md](PROVENANCE.md). The fprintd integration patch originates from `GPL-2.0-or-later` source and is distributed as GPLv3 in this copy. See [LICENSE](LICENSE) for the full text.
 
-## License and provenance
-
-Unless otherwise noted, original project source is distributed under
-LGPL-2.1-or-later; see [LICENSE](LICENSE). Adapted files retain their upstream
-copyright notices, and patches for another project follow that target
-project's license. [PROVENANCE.md](PROVENANCE.md) records the exact reference
-repositories, revisions, licenses, and copied-versus-behavioral boundaries.
-
-<sub>Made with ❤️ using too many tokens, by [Berkekbgz](https://berkekbgz.dev/)</sub>
+No Goodix or Huawei Windows driver binary, firmware, fingerprint capture, template, or device key is included. Publishing this repository does not publish the local `/var/lib/fprint` state.

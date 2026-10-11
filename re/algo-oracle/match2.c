@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-2.1-or-later
+// SPDX-License-Identifier: GPL-3.0-only
 /* Copyright (C) 2026 Berke Kabagöz <berkekbgz@gmail.com> */
 /* AlgoMilan MATCH harness v2 — test the serialize/reload finalize hypothesis.
  * Builds gallery + probe templates (dumpfeat preprocessing), then compares:

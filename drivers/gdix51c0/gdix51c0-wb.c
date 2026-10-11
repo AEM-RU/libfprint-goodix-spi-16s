@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-2.1-or-later
+// SPDX-License-Identifier: GPL-3.0-only
 /*
  * Goodix GDIX51C0 — PSK white-box wrap (host-side re-provisioning)
  *

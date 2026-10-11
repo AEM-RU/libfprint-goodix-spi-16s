@@ -19,8 +19,8 @@ mapfile -d '' source_files < <(
   git ls-files -z -- '*.c' '*.h'
 )
 for source_file in "${source_files[@]}"; do
-  if ! grep -Fq 'SPDX-License-Identifier: LGPL-2.1-or-later' "$source_file"; then
-    printf 'Error: %s has no LGPL-2.1-or-later SPDX identifier.\n' "$source_file" >&2
+  if ! grep -Fq 'SPDX-License-Identifier: GPL-3.0-only' "$source_file"; then
+    printf 'Error: %s has no GPL-3.0-only SPDX identifier.\n' "$source_file" >&2
     exit 1
   fi
   if ! grep -Fqi 'Copyright' "$source_file"; then

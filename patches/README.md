@@ -1,5 +1,10 @@
 # Upstream integration patches
 
+This D15 fork distributes its patch copies under `GPL-3.0-only`. The libfprint
+target's original LGPL-2.1-or-later terms permit this conversion under section
+3; the fprintd target's GPL-2.0-or-later terms allow GPLv3. The source revisions
+and original license provenance remain documented in `../PROVENANCE.md`.
+
 `libfprint/1.94.10.patch` applies to the fetched upstream `v1.94.10` tag at
 `0c97a47d8ef405cd577b87058c1e89cae9d242e7`. It contains only generic Meson
 hooks. The driver lists, source lists, helper dependencies, and tests live in

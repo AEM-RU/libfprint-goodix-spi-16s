@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-2.1-or-later
+// SPDX-License-Identifier: GPL-3.0-only
 /* Copyright (C) 2026 Berke Kabagöz <berkekbgz@gmail.com> */
 /* Quality-gap test: measure AlgoMilan quality/coverage under 4 preprocessing
  * setups on the same frame, to see what closes the gap to Windows (65-94).
